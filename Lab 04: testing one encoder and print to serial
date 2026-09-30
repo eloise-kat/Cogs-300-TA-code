@@ -1,0 +1,32 @@
+// ---------------------------
+// Pins
+// ---------------------------
+const int ENCODER_PIN = 9;
+
+// ---------------------------
+// Setup
+// ---------------------------
+void setup() {
+  pinMode(ENCODER_PIN, INPUT_PULLUP);
+
+  Serial.begin(9600);
+
+  // Optional CSV header
+  Serial.println("t_ms,encoder");
+}
+
+// ---------------------------
+// Main loop
+// ---------------------------
+void loop() {
+  unsigned long t = millis();
+
+  int encoder = digitalRead(ENCODER_PIN);
+
+  // CSV output
+  Serial.print(t);
+  Serial.print(",");
+  Serial.println(encoder);
+
+  delay(5);
+}
