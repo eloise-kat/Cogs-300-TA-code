@@ -1,0 +1,44 @@
+// ---------------------------
+// Pins
+// ---------------------------
+const int LEFT_ENCODER_PIN  = 12;
+const int RIGHT_ENCODER_PIN = 13;
+
+// ---------------------------
+// Setup
+// ---------------------------
+void setup() {
+  pinMode(LEFT_ENCODER_PIN, INPUT_PULLUP);
+  pinMode(RIGHT_ENCODER_PIN, INPUT_PULLUP);
+
+  Serial.begin(9600);
+
+  // Optional CSV header
+  Serial.println("t_ms,left_encoder,right_encoder");
+}
+
+// ---------------------------
+// Main loop
+// ---------------------------
+void loop() {
+  unsigned long t = millis();
+
+  int leftEncoder =
+    digitalRead(LEFT_ENCODER_PIN);
+
+  int rightEncoder =
+    digitalRead(RIGHT_ENCODER_PIN);
+
+  
+  // CSV output
+  Serial.print(t);
+  Serial.print(",");
+
+  Serial.print(leftEncoder);
+  Serial.print(",");
+
+  Serial.println(rightEncoder);
+ // Serial.print(",");
+
+  delay(5);
+}
