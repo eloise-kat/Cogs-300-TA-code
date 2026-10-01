@@ -1,0 +1,82 @@
+import processing.serial.*;
+
+Serial port;
+PrintWriter out;
+String buffer = "";
+int rowCount = 0;
+String fileName;
+
+void setup() {
+  size(600, 300);
+
+  println(Serial.list());
+
+  String portName = "COM9";   // change if your Arduino is on a different port
+  println("Opening: " + portName);
+  port = new Serial(this, portName, 9600);
+
+  String stamp =
+    nf(year(), 4) + nf(month(), 2) + nf(day(), 2) + "_" +
+    nf(hour(), 2) + nf(minute(), 2) + nf(second(), 2);
+
+  fileName = "robot_telemetry_" + stamp + ".csv";
+  out = createWriter(fileName);
+  out.println("arduino_t_ms,left_encoder,right_encoder");
+  out.flush();
+
+  println("Logging started.");
+  println("Saving to: " + sketchPath(fileName));
+}
+
+void draw() {
+  background(240);
+
+  // Read every byte that has arrived and assemble complete lines
+  while (port.available() > 0) {
+    int c = port.read();
+    if (c == '\n') {
+      processLine(buffer);
+      buffer = "";
+    } else if (c != '\r') {
+      buffer += char(c);
+    }
+  }
+
+  out.flush();
+
+  fill(0);
+  textSize(18);
+  text("Robot telemetry logger", 20, 40);
+  textSize(14);
+  text("Press Q to stop and save.", 20, 70);
+  text("Rows logged: " + rowCount, 20, 100);
+}
+
+void processLine(String line) {
+  line = trim(line);
+  if (line.length() == 0) return;
+
+  println("GOT: " + line);
+
+  // Skip the Arduino header line
+  if (line.startsWith("t_ms")) return;
+
+  String[] parts = split(line, ',');
+  if (parts.length != 3) {
+    println("Bad row: " + line);
+    return;
+  }
+
+  out.println(int(parts[0]) + "," + int(parts[1]) + "," + int(parts[2]));
+  rowCount++;
+}
+
+void keyPressed() {
+  if (key == 'q' || key == 'Q') {
+    out.flush();
+    out.close();
+    port.stop();
+    println("Log saved: " + sketchPath(fileName));
+    exit();
+  }
+}
